@@ -1,0 +1,5 @@
+boto3==1.25.4
+streamlit==1.14.0
+matplotlib==3.6.1
+pandas==1.5.1
+scikit-learn==1.1.3

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/name: app
+  name: app-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: app
+    spec:
+      containers:
+        - image: vinhng10/app:1.0.0
+          name: app-pod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources: {}
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: private-nodegroup
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/name: ai
+  name: ai-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: ai
+    spec:
+      containers:
+        - image: vinhng10/ai:1.0.0
+          name: ai-pod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          resources: {}
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: private-nodegroup
+status: {}
