@@ -1,3 +1,4 @@
+import requests
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,10 +32,13 @@ with col1:
 
         predict = st.form_submit_button("Predict")
         if predict:
+            url = "http://ai-service.default.svc.cluster.local/predict"
+            payload = {"x": x_coordinate, "y": y_coordinate}
+            response = requests.post(url, json=payload)
             st.write(
                 "X Coordinate:", x_coordinate, 
                 "Y Coordinate:", y_coordinate,
-                "Predicted Class:", 0
+                "Predicted Class:", response.json()["prediction"]
             )
 
     with st.form("add-form"):

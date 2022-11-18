@@ -11,10 +11,10 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 spec:
   ports:
-    - name: 8080-8080
+    - name: 80-80
       protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 80
+      targetPort: 80
   selector:
     app.kubernetes.io/name: app
   type: LoadBalancer
@@ -35,10 +35,10 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internal
 spec:
   ports:
-    - name: 8090-8090
+    - name: 80-80
       protocol: TCP
-      port: 8090
-      targetPort: 8090
+      port: 80
+      targetPort: 80
   selector:
     app.kubernetes.io/name: ai
   type: LoadBalancer

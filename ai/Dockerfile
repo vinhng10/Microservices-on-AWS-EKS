@@ -5,5 +5,5 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY ./main.py /app/main.py
 COPY ./artifacts /app/artifacts
-EXPOSE 8090
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8090"]
+EXPOSE 80
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
