@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 import boto3
-import pandas as pd
 from sklearn.datasets import make_moons
 
 if __name__ == "__main__":

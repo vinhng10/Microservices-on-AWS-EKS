@@ -1,4 +1,8 @@
 CLUSTER := cluster
+SHELL := /bin/bash
+PYTHON := .venv/bin/python3
+
+prepare-venv: .venv/bin/activate
 
 setup:
 	# Create python virtualenv & source it
@@ -85,8 +89,11 @@ deploy:
 	kubectl apply -f manifests/ingress.yaml
 
 init-database:
+	# Activate virtual environment:
+	$(SHELL) -c "source .venv/bin/activate"
+
 	# Create DynamoDB table if not exist:
-	python3 data/data.py
+	${PYTHON} data/data.py
 
 delete-cluster:
 	eksctl delete cluster -f cluster.yaml

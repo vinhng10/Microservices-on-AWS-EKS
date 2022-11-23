@@ -12,6 +12,18 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("Point")
 
 
+def get_all_data(table: boto3.dynamodb.table) -> pd.DataFrame:
+    items = table.scan()["Items"]
+    data = {
+        "x": map(lambda i: float(i["x"]), items),
+        "y": map(lambda i: float(i["y"]), items),
+        "class": map(lambda i: float(i["class"]), items),
+        "origin": map(lambda i: i["origin"], items),
+    }
+    data = pd.DataFrame.from_dict(data)
+    return data
+
+
 def scatter(data, cls, origin, marker, ax, s, alpha, c, label):
     data = data.loc[lambda df: (df["class"] == cls) & (df["origin"] == origin)]
     ax.scatter(data["x"], data["y"], marker=marker, s=s, alpha=alpha, c=c, label=label)
@@ -22,18 +34,6 @@ st.set_page_config(layout="wide")
 
 if __name__ == "__main__":
     dynamodb = boto3.resource("dynamodb")
-
-
-    if "data" not in st.session_state:
-        data = make_moons(50, noise=0.3, random_state=0)
-        data = pd.DataFrame({
-            "x": data[0][:, 0],
-            "y": data[0][:, 1],
-            "class": data[1].astype(int),
-            "origin": ["original"] * len(data[1])
-        })
-        st.session_state.data = data
-
 
     col1, col2 = st.columns(2)
 
@@ -47,12 +47,15 @@ if __name__ == "__main__":
             if predict:
                 url = "http://ai-service.default.svc.cluster.local/predict"
                 payload = {"x": x_coordinate, "y": y_coordinate}
-                response = requests.post(url, json=payload)
-                st.write(
-                    "X Coordinate:", x_coordinate, 
-                    "Y Coordinate:", y_coordinate,
-                    "Predicted Class:", response.json()["prediction"]
-                )
+                try:
+                    response = requests.post(url, json=payload)
+                    st.write(
+                        "X Coordinate:", x_coordinate, 
+                        "Y Coordinate:", y_coordinate,
+                        "Predicted Class:", response.json()["prediction"]
+                    )
+                except Exception as e:
+                    st.error("AI service is not available. Please try again.")
 
         with st.form("add-form"):
             st.write("Add Data")
@@ -75,19 +78,18 @@ if __name__ == "__main__":
                 except boto3.client("dynamodb").exceptions.ResourceInUseException as e:
                     st.error("Table 'Point' does not exist!")
                 except Exception as e:
-                    st.error(e)
-
+                    st.error(str(e))
 
     with col2:
-        data = st.session_state.data
+        data = get_all_data(table)
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.xaxis.set_tick_params(labelsize=20)
         ax.yaxis.set_tick_params(labelsize=20)
         
-        scatter(st.session_state.data, 0, "original", "o", ax, 100, 0.2, "deepskyblue", "Original 0")
-        scatter(st.session_state.data, 1, "original", "o", ax, 100, 0.2, "orange", "Original 1")
-        scatter(st.session_state.data, 0, "user", "X", ax, 100, 1.0, "deepskyblue", "User 0")
-        scatter(st.session_state.data, 1, "user", "X", ax, 100, 1.0, "orange", "User 1")
+        scatter(data, 0, "original", "o", ax, 100, 0.2, "deepskyblue", "Original 0")
+        scatter(data, 1, "original", "o", ax, 100, 0.2, "orange", "Original 1")
+        scatter(data, 0, "user", "X", ax, 100, 1.0, "deepskyblue", "User 0")
+        scatter(data, 1, "user", "X", ax, 100, 1.0, "orange", "User 1")
 
         ax.legend(title="Class")
         st.pyplot(fig)
