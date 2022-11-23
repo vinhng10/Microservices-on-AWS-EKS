@@ -1,8 +1,7 @@
 import joblib
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, status
 from pydantic import BaseModel
 
 # Load model and scaler:

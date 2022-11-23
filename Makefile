@@ -84,6 +84,10 @@ deploy:
 	# AWS Ingress a.k.a AWS Application Load Balancer:
 	kubectl apply -f manifests/ingress.yaml
 
+init-database:
+	# Create DynamoDB table if not exist:
+	python3 data/data.py
+
 delete-cluster:
 	eksctl delete cluster -f cluster.yaml
 	$(eval LBC_ARN = $(shell aws iam list-policies \
