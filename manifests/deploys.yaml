@@ -23,7 +23,7 @@ spec:
           name: app-pod
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           resources: {}
       nodeSelector:
         alpha.eksctl.io/nodegroup-name: private-nodegroup
@@ -54,7 +54,7 @@ spec:
           name: ai-pod
           imagePullPolicy: Always
           ports:
-            - containerPort: 8090
+            - containerPort: 80
           resources: {}
       nodeSelector:
         alpha.eksctl.io/nodegroup-name: private-nodegroup
