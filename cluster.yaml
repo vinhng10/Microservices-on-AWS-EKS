@@ -9,6 +9,9 @@ availabilityZones:
   - us-west-2a
   - us-west-2b
 
+iam:
+  withOIDC: true
+
 # AWS managed node groups will be in auto-scaling group:
 managedNodeGroups:
   - name: private-nodegroup

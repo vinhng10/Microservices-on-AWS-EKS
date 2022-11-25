@@ -17,6 +17,7 @@ spec:
       labels:
         app.kubernetes.io/name: app
     spec:
+      serviceAccountName: aws-dynamodb-full-access
       containers:
         - image: vinhng10/app:1.0.0
           name: app-pod

@@ -43,6 +43,7 @@ create-cluster:
 	# Persist kubeconfig information for kubectl to communicate with API server:
 	aws eks update-kubeconfig --region us-west-2 --name $(CLUSTER)
 
+create-iam-policies:
 	# Create AWSLoadBalancerControllerIAMPolicy:
 	curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.4/docs/install/iam_policy.json
 	aws iam create-policy \
@@ -50,14 +51,29 @@ create-cluster:
 		--policy-document file://iam_policy.json
 	rm iam_policy.json
 
+	# Create AWSDynamoDBFullAccessPolicy:
+	aws iam create-policy \
+		--policy-name AWSDynamoDBFullAccessPolicy \
+		--policy-document file://policies/dynamodb.json
+
+create-dynamodb-serviceaccount:
+	# Get the ARN of AWSDynamoDBFullAccessPolicy:
+	$(eval DB_ARN = $(shell aws iam list-policies \
+		--query 'Policies[?PolicyName==`AWSDynamoDBFullAccessPolicy`].Arn' \
+		--output text))
+	
+	# Create IAM role - K8s service account for the AWS Load Balancer Controller 
+	eksctl create iamserviceaccount \
+		--cluster=$(CLUSTER) \
+		--name=aws-dynamodb-full-access \
+		--attach-policy-arn=$(DB_ARN) \
+		--approve
+
 install-load-balancer-controller:
 	# Get the ARN of AWSLoadBalancerControllerIAMPolicy:
 	$(eval LBC_ARN = $(shell aws iam list-policies \
 		--query 'Policies[?PolicyName==`AWSLoadBalancerControllerIAMPolicy`].Arn' \
 		--output text))
-	
-	# Create IAM OIDC identity provider for the cluster:
-	eksctl utils associate-iam-oidc-provider --cluster $(CLUSTER) --approve
 	
 	# Create IAM role - K8s service account for the AWS Load Balancer Controller 
 	eksctl create iamserviceaccount \

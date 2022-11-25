@@ -5,7 +5,6 @@ import requests
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.datasets import make_moons
 
 # Get service resource:
 dynamodb = boto3.resource("dynamodb")
