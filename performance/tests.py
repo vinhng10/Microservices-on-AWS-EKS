@@ -42,6 +42,14 @@ class StressTest(BaseTest):
     """ 
     Stress Testing.
 
+    Use this test to:
+        - Determine how the system will behave under extreme conditions
+        - Determine what is the maximum capacity of the system in term of users
+          or throughput
+        - Determine the breaking point of the system and its failure mode
+        - Determine if the system will recover without manual intervention after
+          the stress test is over
+
     Parameters
     ----------
     BaseTest : LoadTestShape
@@ -58,6 +66,10 @@ class StressTest(BaseTest):
 class SpikeTest(BaseTest):
     """
     Spike Testing.
+
+    Use this test to:
+        - Determine how the system will perform under a sudden surge of traffic
+        - Determine if your system will recover once the traffic has subsided
 
     Parameters
     ----------
@@ -76,6 +88,11 @@ class LoadTest(BaseTest):
     """
     Load Testing.
 
+    Use this test to:
+        - Determine the current performance of the system under typical and peak load
+        - Make sure the system is continuously meeting the performance standards
+          as there are updates to the system
+
     Parameters
     ----------
     BaseTest : LoadTestShape
@@ -92,6 +109,15 @@ class LoadTest(BaseTest):
 class SoakTest(BaseTest):
     """
     Soak Testing.
+
+    User this test to:
+        - Verify that the system doesn't suffer from bugs or memory leaks
+        - Verify that expected application restarts won't lose requests
+        - Find bugs related to race-conditions that appear sporadically
+        - Make sure the database doesn't exhaust the allocated space and stops
+        - Make sure logs don't exhaust the allocated disk space
+        - Make sure the depending external services don't stop working after a 
+          certain amount of requests are exceeded
 
     Parameters
     ----------
