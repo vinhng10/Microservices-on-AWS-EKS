@@ -4,6 +4,7 @@ from locust import HttpUser, LoadTestShape, task, between
 
 
 class APIUser(HttpUser):
+    host = ""
     wait_time = between(5, 10)
 
     @task
@@ -56,10 +57,16 @@ class StressTest(BaseTest):
     
     """
     stages = [
+        # Below normal load:
         {"duration": 10, "users": 10, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Normal load:
         {"duration": 30, "users": 50, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 60, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 120, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Around breaking point:
+        {"duration": 50, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Beyond breaking point:
+        {"duration": 70, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Scale down; Recovery stage:
+        {"duration": 100, "users": 0, "spawn_rate": 10, "user_classes": [APIUser]},
     ]
 
 
@@ -77,10 +84,13 @@ class SpikeTest(BaseTest):
     
     """
     stages = [
+        # Warm up the system:
         {"duration": 10, "users": 10, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 30, "users": 50, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 60, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 120, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Spike load:
+        {"duration": 100, "users": 1000, "spawn_rate": 500, "user_classes": [APIUser]},
+        # Scale down; Recovery stage:
+        {"duration": 120, "users": 10, "spawn_rate": 500, "user_classes": [APIUser]},
+        {"duration": 130, "users": 0, "spawn_rate": 10, "user_classes": [APIUser]},
     ]
 
 
@@ -99,10 +109,12 @@ class LoadTest(BaseTest):
     
     """
     stages = [
-        {"duration": 10, "users": 10, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 30, "users": 50, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 60, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 120, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Scale up the traffic:
+        {"duration": 20, "users": 200, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Stay at peak for some time:
+        {"duration": 120, "users": 200, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Scale down the traffic:
+        {"duration": 140, "users": 0, "spawn_rate": 10, "user_classes": [APIUser]},
     ]
 
 
@@ -125,8 +137,10 @@ class SoakTest(BaseTest):
 
     """
     stages = [
-        {"duration": 10, "users": 10, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 30, "users": 50, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 60, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
-        {"duration": 120, "users": 100, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Scale up the traffic:
+        {"duration": 5, "users": 200, "spawn_rate": 100, "user_classes": [APIUser]},
+        # Stay at peak for some time:
+        {"duration": 300, "users": 200, "spawn_rate": 10, "user_classes": [APIUser]},
+        # Scale down the traffic:
+        {"duration": 305, "users": 0, "spawn_rate": 100, "user_classes": [APIUser]},
     ]
