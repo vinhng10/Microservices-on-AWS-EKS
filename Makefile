@@ -104,8 +104,46 @@ deploy:
 	# AWS Ingress a.k.a AWS Application Load Balancer:
 	kubectl apply -f manifests/ingress.yaml
 
+performance-testing:
+	# Create key pair to access EC2:
+	aws ec2 create-key-pair \
+		--key-name PerfTestKeyPair \
+		--query "KeyMaterial" \
+		--output text > performance/PerfTestKeyPair.pem
+	chmod 400 performance/PerfTestKeyPair.pem
+
+	# Spin up an EC2 instance. At the moment, the instance will be in public 
+	# subnet to access the WebUI. Private subnet style will be develop later:
+	$(eval SECURITY_GROUP_ID = \
+		$(shell aws ec2 describe-security-groups \
+			--filter Name=group-name,Values=default \
+			--query 'SecurityGroups[*].[GroupId]' \
+			--output text ))
+	$(eval PUBLIC_SUBNET_ID = \
+		$(shell aws ec2 describe-subnets \
+			--filter Name=tag:Name,Values=eksctl-cluster-$(CLUSTER)/SubnetPublicUSWEST2A \
+			--query 'Subnets[*].[SubnetId]' \
+			--output text ))
+	aws ec2 run-instances \
+		--image-id ami-0ceecbb0f30a902a6\
+		--count 1 --instance-type t2.micro --key-name PerfTestKeyPair \
+		--security-group-ids $(SECURITY_GROUP_ID) \
+		--subnet-id $(PUBLIC_SUBNET_ID)
+
+	# # Install tests in that EC2 instance:
+	# aws ec2 ...
+
+	# # Run tests:
+	# ssh ...
+	# pip3 install -r requirements.txt
+	# locust -f performance/stress_tests.py
+	# locust -f performance/spike_tests.py
+	# locust -f performance/load_tests.py
+	# locust -f performance/soak_tests.py
+	
+
 init-database:
-	# Activate virtual environment:
+	# Activate virtual environment (still doesn't work):
 	$(SHELL) -c "source .venv/bin/activate"
 
 	# Create DynamoDB table if not exist:
